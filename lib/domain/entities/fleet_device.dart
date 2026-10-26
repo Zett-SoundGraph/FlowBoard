@@ -25,11 +25,12 @@ class FleetDevice {
   final String icon;
   final List<String> heartbeatDeviceIds;
   final String? leaderStateField;
-  // When set, ANY heartbeat deviceId starting with this (case-insensitive)
-  // counts as this device being alive, instead of requiring an exact match
-  // against [heartbeatDeviceIds] — for a role like Kiosk where multiple
-  // differently-named physical/test units (kiosk-01, kioskTest02, ...)
-  // should all count as "the kiosk", not just one fixed id.
+  // When set, ANY heartbeat deviceId CONTAINING this (case-insensitive,
+  // anywhere in the string) counts as this device being alive, instead of
+  // requiring an exact match against [heartbeatDeviceIds] — for a role like
+  // Kiosk where multiple differently-named physical/test units (kiosk-01,
+  // flow-kiosk, kioskTest02, ...) should all count as "the kiosk", not just
+  // one fixed id.
   final String? idPrefix;
 
   const FleetDevice({
@@ -44,53 +45,58 @@ class FleetDevice {
 /// The fixed 12-device fleet (matches FlowHub's own Device Management screen
 /// list/order exactly — device_management_screen.dart).
 const List<FleetDevice> kFleetDevices = [
+  // heartbeatDeviceIds/idPrefix are lowercase/hyphenated slugs — they're
+  // matched directly against incoming MQTT topic paths
+  // (beta/system/heartbeat/<deviceId>), which are all-lowercase/no-space
+  // throughout the protocol. `label` is the pretty on-screen text and is
+  // free to use normal capitalization/spacing.
   FleetDevice(
-    label: 'Flow Hub Leader',
+    label: 'FlowHub Leader',
     icon: 'assets/images/flowhub.png',
     heartbeatDeviceIds: ['flowhub-leader'],
   ),
   FleetDevice(
-    label: 'Flow Hub Follower',
+    label: 'FlowHub Follower',
     icon: 'assets/images/flowhub.png',
-    heartbeatDeviceIds: ['flowhub-follower01', 'flowhub-follower02'],
+    heartbeatDeviceIds: ['flowhub-follower-01', 'flowhub-follower-02'],
   ),
   FleetDevice(
-    label: 'Scanner Brew',
+    label: 'Flow QR Reader Brew',
     icon: 'assets/images/monitor.png',
-    heartbeatDeviceIds: ['scanner-order-01'],
+    heartbeatDeviceIds: ['flow-qr-reader-brew'],
   ),
   FleetDevice(
-    label: 'Scanner Call',
+    label: 'Flow QR Reader Call',
     icon: 'assets/images/monitor.png',
-    heartbeatDeviceIds: ['scanner-complete-01'],
+    heartbeatDeviceIds: ['flow-qr-reader-call'],
   ),
   FleetDevice(
-    label: 'Scanner Pickup',
+    label: 'Flow QR Reader Pickup',
     icon: 'assets/images/monitor.png',
-    heartbeatDeviceIds: ['scanner-customer-01'],
+    heartbeatDeviceIds: ['flow-qr-reader-pickup'],
   ),
   FleetDevice(
-    label: 'Pickup Table',
+    label: 'Flow Pickup Table',
     icon: 'assets/images/pickuptable.png',
-    heartbeatDeviceIds: ['Cafe Beta PickupTable'],
+    heartbeatDeviceIds: ['flow-pickup-table'],
   ),
   FleetDevice(
-    label: 'Kiosk',
+    label: 'Flow Kiosk',
     icon: 'assets/images/monitor.png',
     // Not a fixed id like the other rows — kiosk builds are tested under
-    // varying names (kiosk-01, kioskTest02, ...), so this matches by
-    // prefix instead (see FleetDevice.idPrefix).
+    // varying names (kiosk-01, flow-kiosk, kioskTest02, ...), so this
+    // matches any id CONTAINING "kiosk" instead (see FleetDevice.idPrefix).
     idPrefix: 'kiosk',
   ),
   FleetDevice(
-    label: 'Pickup Board',
+    label: 'Flow Pickup Board',
     icon: 'assets/images/monitor.png',
-    heartbeatDeviceIds: ['Cafe Beta PickupBoard'],
+    heartbeatDeviceIds: ['flow-pickup-board'],
   ),
   FleetDevice(
     label: 'Flow Board',
     icon: 'assets/images/monitor.png',
-    heartbeatDeviceIds: ['Cafe Beta FlowBoard'],
+    heartbeatDeviceIds: ['flow-board'],
   ),
   FleetDevice(
     label: 'Label Printer',
@@ -98,14 +104,9 @@ const List<FleetDevice> kFleetDevices = [
     leaderStateField: 'isPrinterConnected',
   ),
   FleetDevice(
-    label: 'Raspberry Pi',
+    label: 'Flow ToF Camera',
     icon: 'assets/images/raspberry.png',
-    // Confirmed from ToF-백업파일's PiMqtt_Man.h: HEARTBEAT_DEVICE_ID — the
-    // Pi now publishes beta/system/heartbeat/<this id> directly every 5s
-    // (retained), same as every other MQTT device above (see
-    // flowhub/device_management_screen.dart's _raspberryPiDeviceId, already
-    // updated to match).
-    heartbeatDeviceIds: ['Cafe Beta RaspberryPi'],
+    heartbeatDeviceIds: ['flow-tof-camera'],
   ),
   FleetDevice(
     label: 'Caye Machine',

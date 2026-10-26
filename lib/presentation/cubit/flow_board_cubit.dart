@@ -95,8 +95,9 @@ class FlowBoardCubit extends Cubit<FlowBoardState> {
     final prefix = device.idPrefix?.toLowerCase();
     if (prefix != null) {
       final now = DateTime.now();
+      // contains, not startsWith — see FleetDevice.idPrefix's doc comment.
       return state.deviceLastSeen.entries.any((e) =>
-          e.key.toLowerCase().startsWith(prefix) &&
+          e.key.toLowerCase().contains(prefix) &&
           now.difference(e.value) <= _heartbeatStaleAfter);
     }
     return device.heartbeatDeviceIds.any(_isHeartbeatFresh);

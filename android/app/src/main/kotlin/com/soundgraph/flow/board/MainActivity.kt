@@ -1,4 +1,4 @@
-package com.sg.flow_board
+package com.soundgraph.flow.board
 
 import io.flutter.embedding.android.FlutterActivity
 

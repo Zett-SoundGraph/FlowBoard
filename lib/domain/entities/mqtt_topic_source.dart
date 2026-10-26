@@ -23,31 +23,31 @@ MqttTopicSource resolveMqttTopicSource(String topic) {
   if (topic.startsWith(heartbeatTopicPrefix)) {
     final deviceId = topic.substring(heartbeatTopicPrefix.length);
     // Not a fixed id like the cases below — kiosk builds are tested under
-    // varying names (kiosk-01, kioskTest02, ...), so any of them reads
-    // nicely as "kiosk" instead of falling through to the raw-id default.
-    if (deviceId.toLowerCase().startsWith('kiosk')) {
+    // varying names (kiosk-01, flow-kiosk, ...), so any of them reads nicely
+    // as "kiosk" instead of falling through to the raw-id default.
+    if (deviceId.toLowerCase().contains('kiosk')) {
       return (icon: _fallbackIcon, title: 'kiosk');
     }
     switch (deviceId) {
       case 'flowhub-leader':
         return (icon: _flowhubIcon, title: 'flowhub leader');
-      case 'flowhub-follower01':
-      case 'flowhub-follower02':
-        return (icon: _flowhubIcon, title: 'flow hub follower');
-      case 'Cafe Beta PickupTable':
-        return (icon: _pickupTableIcon, title: 'pickup table');
-      case 'Cafe Beta RaspberryPi':
-        return (icon: _raspberryPiIcon, title: 'raspberry pi');
-      case 'Cafe Beta PickupBoard':
-        return (icon: _fallbackIcon, title: 'pickup board');
-      case 'Cafe Beta FlowBoard':
+      case 'flowhub-follower-01':
+      case 'flowhub-follower-02':
+        return (icon: _flowhubIcon, title: 'flowhub follower');
+      case 'flow-pickup-table':
+        return (icon: _pickupTableIcon, title: 'flow pickup table');
+      case 'flow-tof-camera':
+        return (icon: _raspberryPiIcon, title: 'flow tof camera');
+      case 'flow-pickup-board':
+        return (icon: _fallbackIcon, title: 'flow pickup board');
+      case 'flow-board':
         return (icon: _fallbackIcon, title: 'flow board');
-      case 'scanner-order-01':
-        return (icon: _fallbackIcon, title: 'scanner brew');
-      case 'scanner-complete-01':
-        return (icon: _fallbackIcon, title: 'scanner call');
-      case 'scanner-customer-01':
-        return (icon: _fallbackIcon, title: 'scanner pickup');
+      case 'flow-qr-reader-brew':
+        return (icon: _fallbackIcon, title: 'flow qr reader brew');
+      case 'flow-qr-reader-call':
+        return (icon: _fallbackIcon, title: 'flow qr reader call');
+      case 'flow-qr-reader-pickup':
+        return (icon: _fallbackIcon, title: 'flow qr reader pickup');
       default:
         return (icon: _fallbackIcon, title: deviceId);
     }
@@ -56,7 +56,7 @@ MqttTopicSource resolveMqttTopicSource(String topic) {
   // Dynamic segment ({followerId}) — matched by prefix/suffix rather than
   // a fixed case.
   if (topic.startsWith('beta/flowhub/follower/') && topic.endsWith('/update')) {
-    return (icon: _flowhubIcon, title: 'flowhub follower update');
+    return (icon: _flowhubIcon, title: 'flowhub follower sync request');
   }
 
   switch (topic) {
@@ -77,17 +77,17 @@ MqttTopicSource resolveMqttTopicSource(String topic) {
     case 'beta/flowhub/caye/cleaning':
       return (icon: _cayeIcon, title: 'Caye Coffee Machine (Cleaning)');
     case 'beta/qr/order':
-      return (icon: _fallbackIcon, title: 'scanner brew');
+      return (icon: _fallbackIcon, title: 'flow qr reader brew');
     case 'beta/qr/complete':
-      return (icon: _fallbackIcon, title: 'scanner call');
+      return (icon: _fallbackIcon, title: 'flow qr reader call');
     case 'beta/qr/customer':
-      return (icon: _fallbackIcon, title: 'scanner pickup');
+      return (icon: _fallbackIcon, title: 'flow qr reader pickup');
     case 'beta/pickuptable/pickup':
-      return (icon: _pickupTableIcon, title: 'pickup table');
+      return (icon: _pickupTableIcon, title: 'flow pickup table');
     case 'beta/tof/objects':
-      return (icon: _raspberryPiIcon, title: 'raspberry pi (ToF objects)');
+      return (icon: _raspberryPiIcon, title: 'flow tof camera (ToF objects)');
     case 'beta/tof/control':
-      return (icon: _raspberryPiIcon, title: 'raspberry pi (control)');
+      return (icon: _raspberryPiIcon, title: 'flow tof camera (control)');
     default:
       return (icon: _fallbackIcon, title: topic);
   }
