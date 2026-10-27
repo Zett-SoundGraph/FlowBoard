@@ -63,21 +63,22 @@ android {
 
     // Renames the output APK from Flutter's default (app-dev-release.apk /
     // app-prod-release.apk) to
-    // CafeBeta_FlowBoard_<versionName>.<versionCode, zero-padded>-<flavor>.apk
+    // CafeBeta_FlowBoard_<flavor>_<versionName>.<versionCode>.apk
     // — see flowhub/android/app/build.gradle.kts for the fleet-wide
-    // convention this mirrors (A.BC.MMDD versionName + NN versionCode, both
-    // from pubspec.yaml, bumped by hand before each build). versionName
-    // already carries flavor's own "-dev" suffix (see productFlavors
-    // above), so this only adds the flavor name itself for prod builds.
-    // Uses the older applicationVariants API (not androidComponents.
-    // onVariants) — the newer Variant API's `output.outputFileName` didn't
-    // resolve against this project's AGP version.
+    // convention this mirrors (A.BC.YYMMDD versionName + YYMMDDNN
+    // versionCode, both from pubspec.yaml, bumped by hand before each
+    // build). Uses `flutter.versionName` (not `variant.versionName`) so the
+    // dev flavor's `versionNameSuffix = "-dev"` doesn't make "dev" appear
+    // twice in the filename. Uses the older applicationVariants API (not
+    // androidComponents.onVariants) — the newer Variant API's
+    // `output.outputFileName` didn't resolve against this project's AGP
+    // version.
     applicationVariants.all {
         val variant = this
         variant.outputs.all {
             val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
             output.outputFileName =
-                "CafeBeta_FlowBoard_${variant.versionName}.${variant.versionCode.toString().padStart(2, '0')}-${variant.flavorName}.apk"
+                "CafeBeta_FlowBoard_${variant.flavorName}_${flutter.versionName}.${variant.versionCode}.apk"
         }
     }
 }

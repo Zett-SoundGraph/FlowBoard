@@ -98,8 +98,12 @@ Both entrypoints: `WidgetsFlutterBinding.ensureInitialized()` →
 the broker IP never needs to be re-entered) → `setupLocator(Env.dev()/
 Env.prod())` → `runApp(...)`.
 
-Output APK filename: `CafeBeta_FlowBoard_<version>.<buildNumber>-<flavor>.apk`
-(see `android/app/build.gradle.kts`'s `applicationVariants.all` block).
+Output APK filename: `CafeBeta_FlowBoard_<flavor>_<version>.<buildNumber>.apk`
+(see `android/app/build.gradle.kts`'s `applicationVariants.all` block). Use
+`./scripts/build_apk.sh <flavor>` instead of the raw `flutter build apk`
+command above to get this filename plus auto-versioning by date + same-day
+build count (see section 7.4) and a copy exported to `~/Documents/
+CafeBeta_FlowBoard`.
 
 ## 6. Folder Structure
 
@@ -145,15 +149,15 @@ Add new public files to the matching `index.dart` in the same change.
 
 ### 7.4 Version Naming Rule
 
-`pubspec.yaml` version format: `MAJOR.MINOR.DATE+BUILD`
+`pubspec.yaml` version format: `MAJOR.MINOR.YYMMDD+YYMMDDBUILD`
 
 ```yaml
-version: 0.10.1004+01
+version: 0.10.261027+26102701
 ```
 
 - `MAJOR`: breaking release line
 - `MINOR`: feature milestone line
-- `DATE`: release date (`MMDD`)
+- `YYMMDD`: release date, repeated at the start of the build number
 - `BUILD`: same-day build count — bump by hand before every same-day rebuild
 
 ## 8. Common Troubleshooting
