@@ -46,3 +46,6 @@ app.*.map.json
 
 # MQTT broker credentials — copy this in locally from kds/env.json, never commit it
 env.json
+
+# scripts/build_apk.sh's same-day build counter (local to this machine)
+.build_number.local

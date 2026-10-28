@@ -10,9 +10,13 @@ class NetworkConstants {
   static const String mqttUsername = String.fromEnvironment('MQTT_USERNAME');
   static const String mqttPassword = String.fromEnvironment('MQTT_PASSWORD');
 
-  // Matches the placeholder deviceId already reserved for this device in
-  // KDS's device_management_screen.dart (_flowBoardDeviceId) — keeping the
-  // two in sync means that row lights up as soon as this app connects, with
-  // no further changes needed on the KDS side.
-  static const String mqttDeviceId = 'Cafe Beta FlowBoard';
+  // Matches the deviceId reserved for this device in FlowHub's
+  // device_management_screen.dart (_flowBoardDeviceId) — keeping the two in
+  // sync means that row lights up as soon as this app connects, with no
+  // further changes needed on the FlowHub side. Stays a lowercase/hyphenated
+  // slug (not "Flow Board") because this gets embedded directly into MQTT
+  // topic paths (beta/system/heartbeat/<mqttDeviceId>) — every other topic
+  // in the protocol is all-lowercase/no-space, so a space here would be the
+  // odd one out.
+  static const String mqttDeviceId = 'flow-board';
 }
