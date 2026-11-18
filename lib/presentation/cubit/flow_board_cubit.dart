@@ -6,8 +6,7 @@ import 'package:injectable/injectable.dart';
 
 import 'package:flow_board/core/utils/log.dart';
 import 'package:flow_board/domain/entities/index.dart';
-import 'package:flow_board/domain/usecases/device/get_device_info_usecase.dart';
-import 'package:flow_board/domain/usecases/device/observe_device_info_changed_usecase.dart';
+import 'package:flow_board/domain/repositories/device_repository.dart';
 import 'package:flow_board/domain/usecases/index.dart';
 import 'package:flow_board/presentation/cubit/flow_board_state.dart';
 
@@ -16,13 +15,12 @@ class FlowBoardCubit extends Cubit<FlowBoardState> {
   FlowBoardCubit(
     this._connect,
     this._observeMessages,
-    this._getDeviceInfo,
-    this._observeDeviceInfoChanged,
+    this._deviceRepository,
   ) : super(FlowBoardState(appStartedAt: DateTime.now())) {
     _messageSubscription = _observeMessages().listen(_handleMessage);
     unawaited(_connect());
     unawaited(_loadDeviceInfo());
-    _deviceInfoChangedSubscription = _observeDeviceInfoChanged().listen(
+    _deviceInfoChangedSubscription = _deviceRepository.deviceInfoChanges.listen(
       (_) => unawaited(_loadDeviceInfo()),
     );
     // Nothing else re-renders the uptime clock on its own since it isn't
@@ -48,8 +46,7 @@ class FlowBoardCubit extends Cubit<FlowBoardState> {
 
   final ConnectUsecase _connect;
   final ObserveMessagesUsecase _observeMessages;
-  final GetDeviceInfoUsecase _getDeviceInfo;
-  final ObserveDeviceInfoChangedUsecase _observeDeviceInfoChanged;
+  final DeviceRepository _deviceRepository;
 
   StreamSubscription<RawMqttMessage>? _messageSubscription;
   Timer? _clockTimer;
@@ -59,7 +56,7 @@ class FlowBoardCubit extends Cubit<FlowBoardState> {
   /// connection check is done through logcat (tag `FlowBoard`).
   Future<void> _loadDeviceInfo() async {
     try {
-      final device = await _getDeviceInfo();
+      final device = await _deviceRepository.getDeviceInfo();
       if (isClosed) return;
       Log.i('FlowBoard', 'Device info loaded: $device');
     } catch (e) {

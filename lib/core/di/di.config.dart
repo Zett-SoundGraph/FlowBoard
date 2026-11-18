@@ -19,9 +19,6 @@ import '../../data/sources/remote/mqtt_data_source.dart' as _i126;
 import '../../domain/repositories/device_repository.dart' as _i454;
 import '../../domain/repositories/flow_log_repository.dart' as _i510;
 import '../../domain/usecases/connect_usecase.dart' as _i690;
-import '../../domain/usecases/device/get_device_info_usecase.dart' as _i677;
-import '../../domain/usecases/device/observe_device_info_changed_usecase.dart'
-    as _i373;
 import '../../domain/usecases/index.dart' as _i447;
 import '../../domain/usecases/observe_messages_usecase.dart' as _i1003;
 import '../../presentation/cubit/flow_board_cubit.dart' as _i141;
@@ -35,12 +32,6 @@ _i174.GetIt $initGetIt(
   final gh = _i526.GetItHelper(getIt, environment, environmentFilter);
   gh.lazySingleton<_i454.DeviceRepository>(
     () => _i34.DeviceRepositoryImpl(gh<_i21.FlowUpdaterService>()),
-  );
-  gh.factory<_i677.GetDeviceInfoUsecase>(
-    () => _i677.GetDeviceInfoUsecase(gh<_i454.DeviceRepository>()),
-  );
-  gh.factory<_i373.ObserveDeviceInfoChangedUsecase>(
-    () => _i373.ObserveDeviceInfoChangedUsecase(gh<_i454.DeviceRepository>()),
   );
   gh.singleton<_i126.IMqttDataSource>(() => _i126.MqttDataSource());
   gh.singleton<_i510.FlowLogRepository>(
@@ -56,8 +47,7 @@ _i174.GetIt $initGetIt(
     () => _i141.FlowBoardCubit(
       gh<_i447.ConnectUsecase>(),
       gh<_i447.ObserveMessagesUsecase>(),
-      gh<_i677.GetDeviceInfoUsecase>(),
-      gh<_i373.ObserveDeviceInfoChangedUsecase>(),
+      gh<_i454.DeviceRepository>(),
     ),
   );
   return getIt;
