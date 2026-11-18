@@ -4,16 +4,27 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import 'package:flow_board/core/utils/log.dart';
 import 'package:flow_board/domain/entities/index.dart';
+import 'package:flow_board/domain/usecases/device/get_device_info_usecase.dart';
+import 'package:flow_board/domain/usecases/device/observe_device_info_changed_usecase.dart';
 import 'package:flow_board/domain/usecases/index.dart';
 import 'package:flow_board/presentation/cubit/flow_board_state.dart';
 
 @injectable
 class FlowBoardCubit extends Cubit<FlowBoardState> {
-  FlowBoardCubit(this._connect, this._observeMessages)
-      : super(FlowBoardState(appStartedAt: DateTime.now())) {
+  FlowBoardCubit(
+    this._connect,
+    this._observeMessages,
+    this._getDeviceInfo,
+    this._observeDeviceInfoChanged,
+  ) : super(FlowBoardState(appStartedAt: DateTime.now())) {
     _messageSubscription = _observeMessages().listen(_handleMessage);
     unawaited(_connect());
+    unawaited(_loadDeviceInfo());
+    _deviceInfoChangedSubscription = _observeDeviceInfoChanged().listen(
+      (_) => unawaited(_loadDeviceInfo()),
+    );
     // Nothing else re-renders the uptime clock on its own since it isn't
     // driven by an MQTT event — this is what actually ticks it forward.
     _clockTimer = Timer.periodic(
@@ -37,9 +48,24 @@ class FlowBoardCubit extends Cubit<FlowBoardState> {
 
   final ConnectUsecase _connect;
   final ObserveMessagesUsecase _observeMessages;
+  final GetDeviceInfoUsecase _getDeviceInfo;
+  final ObserveDeviceInfoChangedUsecase _observeDeviceInfoChanged;
 
   StreamSubscription<RawMqttMessage>? _messageSubscription;
   Timer? _clockTimer;
+  StreamSubscription<void>? _deviceInfoChangedSubscription;
+
+  /// Reads the device record from FlowUpdater and logs it. No UI yet: the
+  /// connection check is done through logcat (tag `FlowBoard`).
+  Future<void> _loadDeviceInfo() async {
+    try {
+      final device = await _getDeviceInfo();
+      if (isClosed) return;
+      Log.i('FlowBoard', 'Device info loaded: $device');
+    } catch (e) {
+      Log.w('FlowBoard', 'getDeviceInfo failed: $e');
+    }
+  }
 
   void _handleMessage(RawMqttMessage message) {
     final deviceLastSeen = Map<String, DateTime>.from(state.deviceLastSeen);
@@ -106,6 +132,7 @@ class FlowBoardCubit extends Cubit<FlowBoardState> {
   @override
   Future<void> close() {
     unawaited(_messageSubscription?.cancel());
+    unawaited(_deviceInfoChangedSubscription?.cancel());
     _clockTimer?.cancel();
     return super.close();
   }

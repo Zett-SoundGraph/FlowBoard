@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flow_board/core/constants/local_subnet_resolver.dart';
 import 'package:flow_board/core/di/index.dart';
 import 'package:flow_board/core/env/env.dart';
+import 'package:flow_board/data/platform/flow_updater_service.dart';
 import 'package:flow_board/presentation/cubit/index.dart';
 import 'package:flow_board/presentation/screens/flow_board_screen.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +22,16 @@ void main() {
   // the corrected value automatically).
   LocalSubnetResolver.resolve();
   setupLocator(Env.prod());
+  // Don't await it before runApp: if FlowUpdater is missing, startup must not
+  // wait. The SDK keeps reconnecting in the background either way.
+  final FlowUpdaterService updater = getIt<FlowUpdaterService>();
+  unawaited(updater.connect());
   runApp(const FlowBoardApp());
+  // UI is up: report ready for FlowUpdater's IPC_READY health check once the
+  // first frame is drawn (same timing as FlowKioskApp).
+  WidgetsBinding.instance.addPostFrameCallback(
+    (_) => unawaited(updater.markReady()),
+  );
 }
 
 class FlowBoardApp extends StatelessWidget {
